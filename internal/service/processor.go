@@ -6,9 +6,8 @@ import (
 )
 
 type Processor struct {
-	Svc       *Service
-	levels    map[string]model.Level
-	lastLevel model.Level
+	Svc    *Service
+	levels map[string]model.Level
 }
 
 func NewProcessor(s *Service) *Processor { return &Processor{Svc: s, levels: map[string]model.Level{}} }
@@ -17,7 +16,6 @@ func (p *Processor) Prepare(id string, l model.Level) error {
 		return errors.New("invalid level")
 	}
 	p.levels[id] = l
-	p.lastLevel = l
 	return nil
 }
 func (p *Processor) Publish(id string) (model.Record, error) {
@@ -26,8 +24,7 @@ func (p *Processor) Publish(id string) (model.Record, error) {
 		return r, e
 	}
 	if l, ok := p.levels[id]; ok {
-		_ = l
-		r.Level = p.lastLevel
+		r.Level = l
 		_ = p.Svc.Store.PutRecord(r)
 	}
 	return r, nil
